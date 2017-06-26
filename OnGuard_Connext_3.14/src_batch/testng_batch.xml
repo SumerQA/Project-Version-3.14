@@ -1,0 +1,43 @@
+<!--DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" -->
+  
+<suite name="OnGuard Batch" verbose="1"  parallel="false"  thread-count="1" preserve-order="true"> 
+<listeners  useDefaultListeners="false"> 
+       <listener class-name="org.testng.reporters.TestHTMLReporter" />   
+       <listener class-name="org.testng.reporters.JUnitXMLReporter" />
+       <listener class-name="org.testng.reporters.XMLReporter" /> 
+       <listener class-name="Configration_Files.ScreenShotOnFailure"/>
+</listeners>
+ <packages> 
+      <package name="OnGuard_Connext_3.14.batch.queue"/> 
+      <package name="OnGuard_Connext_3.14.batch.Batch_scheduler"/> 
+      <package name="OnGuard_Connext_3.14.batch.Batch_rules"/> 
+      <package name="OnGuard_Connext_3.14.Onguard.General_Profile"/>
+ </packages>
+  
+  <test name="Batch- Batch rules Tab Functionality">
+    <classes>
+	   <class name="batch.Batch_rules.Batch_rules"/>
+    </classes>
+  </test> 
+    
+ 
+    <test name="Batch- Batch scheduler Tab Functionality">
+    <classes>
+	   <class name="batch.Batch_scheduler.Batch_scheduler"/>
+    </classes>
+  </test> 
+  
+  <test name="Batch- Queue Tab Functionality">
+    <classes>
+	   <class name="batch.Queue.Queue"/>
+    </classes>
+  </test> 
+   
+   <test name="OnGuard Logout and Close Browser Functionality">
+    <classes>	    
+	       <class name="Onguard.General_Profile.Signout"/> 
+	       <class name="Onguard.General_Profile.Close_browser"/> 
+    </classes>
+  </test> 
+
+</suite>

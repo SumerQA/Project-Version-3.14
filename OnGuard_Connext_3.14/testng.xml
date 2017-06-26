@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite name="OnGuard Application Manager and Batch Test Suite- 3.14"
+	verbose="1" parallel="false" thread-count="1" preserve-order="true">
+	<!-- Chrome = CH, Firefox =FF and Internet Explorer= IE -->
+
+	<!-- English = EN, Dutch =NL ,French = FR, German = DE, Spanish =ES, Portuguese 
+		= PT, Italian =IT,Polish = PO, Russian =RUS, Turkish = TUR -->
+	<parameter name="Browser" value="CH" />
+	<parameter name="Locale" value="EN" />
+	<parameter name="URL" value="https://192.168.0.151/ApplicationManager" />
+	
+	<!-- Database configration -->
+	<parameter name="DataSource" value="192.168.0.151" />
+	<parameter name="DatabaseName" value="RIWAL-test_3.14" />
+	
+	<suite-files>
+	 <suite-file path="E:\Sumer\3.14\workspace\OnGuard_Connext_3.14\src\testng_AppMan.xml" />
+	  <suite-file path="E:\Sumer\3.14\workspace\OnGuard_Connext_3.14\src_batch\testng_batch.xml" />
+	 </suite-files>
+ </suite>
