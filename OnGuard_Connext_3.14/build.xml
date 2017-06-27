@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<project basedir="." default="run" name="OnGuard Connext- 3.14">
+	<property name="build.log.dir" location="${basedir}/buildlogs" />
+	<property name="build.log.filename" value="build.log" />
+	<property name="build.dir" value="${basedir}/build" />
+	<property name="Screenshot.dir" value="${basedir}/testng-xslt/Screenshot" />
+	<property name="LoadTestReport.dir" value="${basedir}/LoadTestReport" />
+	<property name="image.dir" value="${basedir}/testng-xslt/Images" />	
+	<property name="src.dir" value="${basledir}/src" />
+	<property name="testng.report.dir" value="test-output" />
+	<property name="Password" value="sumer@sdna" />
+	<property name="testng.xslt" value="testng.xslt" />
+	<property name="browser" value="C:/Program Files (x86)/Google/Chrome/Application/Chrome.exe" />
+	<property name="project.name" value="OnGuard_Connext_3.14" />
+	<property name="project.version" value="1.0" />
+	<property name="lib.dir" value="${basedir}/jar" />
+
+	<path id="OnGuard_Connext_3.14.classpath">
+		<pathelement location="bin" />
+		<fileset dir="${lib.dir}">
+			<include name="*.jar" />
+		</fileset>
+	</path>
+	<target name="run">
+		<antcall target="clean" />
+		<antcall target="init" />
+		<antcall target="compile" />
+		<antcall target="jar" />
+		<antcall target="runTests" />
+		<antcall target="report" />
+		<antcall target="RunJmeterScript" />
+		<antcall target="RunAndViewReport" />
+		<antcall target="sendMail" />
+		<record name="${build.log.dir}/${build.log.filename}" loglevel="verbose" append="true" />
+	</target>
+
+	<target name="init">
+		<mkdir dir="${build.dir}" />
+		<mkdir dir="${build.dir}/META-INF" />
+		<mkdir dir="${testng.report.dir}" />
+		<mkdir dir="${basedir}/testng-xslt" />
+		<mkdir dir="${build.log.dir}" />
+		<mkdir dir="${Screenshot.dir}" />
+		<mkdir dir="${LoadTestReport.dir}" />
+		<mkdir dir="${image.dir}" />
+		<copy todir="${image.dir}">  
+		                <fileset dir="${basedir}/Images" includes="*.png"/>  
+		            </copy>
+		<echo message="build logged to ${build.log.filename}" />
+	</target>
+
+	<target name="clean">
+		<echo message="deleting existing build directory" />
+		<delete dir="${build.dir}" />
+		<delete dir="${Screenshot.dir}" />
+		<delete dir="${LoadTestReport.dir}" />
+		<delete dir="${testng.report.dir}" />
+		<delete dir="${basedir}/testng-xslt" />
+		<delete dir="${build.dir}" />
+	</target>
+
+	<target name="compile">
+		<echo message="classpath:OnGuard_Connext_3.14.classpath" />
+		<echo message="compiling.........." />
+		<javac destdir="${build.dir}" srcdir="${basedir}\src\..\" includeantruntime="false">
+			<classpath refid="OnGuard_Connext_3.14.classpath">
+			</classpath>
+		</javac>
+		<javac destdir="${build.dir}" srcdir="${basedir}\src_batch\..\" includeantruntime="false">
+			<classpath refid="OnGuard_Connext_3.14.classpath">
+			</classpath>
+		</javac>
+	</target>
+
+	<target name="jar" description="packages up the class files into jar files">
+		<property name="archive.name" value="${project.name}-${project.version}" />
+		<property name="archive.target" value="${build.dir}/${archive.name}" />
+		<manifest file="${build.dir}/META-INF/MANIFEST.MF">
+			<attribute name="Main-Class" value="Configration_Files.AntExecutor" />
+			<attribute name="Class-Path" value="OnGuard_Connext_3.14.classpath" />
+		</manifest>
+		<jar manifest="${build.dir}/META-INF/MANIFEST.MF" basedir="${build.dir}" includes="**" destfile="${archive.target}.jar" excludes="${archive.name}.jar">
+		</jar>
+	</target>
+
+	<target name="runTests">
+		<taskdef resource="testngtasks" classpathref="OnGuard_Connext_3.14.classpath" />
+		<testng outputDir="${testng.report.dir}" classpathref="OnGuard_Connext_3.14.classpath">
+			<xmlfileset dir="${basedir}\" includes="testng.xml" />
+		</testng>
+	</target>
+	
+	<target name="RunJmeterScript">
+		<taskdef name="jmeter"
+		    classname="org.programmerplanet.ant.taskdefs.jmeter.JMeterTask"/>	
+		<jmeter
+		    jmeterhome="E:\Sumer\Jmeter\apache-jmeter-2.13"
+		    testplan="${basedir}/LoadTest/API Client.jmx"
+		    resultlog="${basedir}/LoadTestReport/JMeterResults.jtl">
+			
+		</jmeter>
+		<xslt
+		    in="${basedir}/LoadTestReport/JMeterResults.jtl"
+		    out="${basedir}/LoadTestReport/JMeterResults.html"
+		    style="${basedir}/LoadTest/jmeter-results-detail-report_21.xsl"/>
+		      <copy todir="${basedir}/LoadTestReport">  
+				  <fileset dir="${basedir}/LoadTest" includes="*.png"/>  
+		      </copy>
+	</target>
+	
+
+	<target name="report">
+		<xslt processor="SaxonLiaison" out="${basedir}/testng-xslt/index.html" style="${basedir}/jar/testng-results.xsl" in="${basedir}/test-output/testng-results.xml">
+			<param name="testNgXslt.outputDir" expression="${basedir}/testng-xslt/" />
+			<param name="testNGXslt.sortTestCaseLinks" expression="true" />
+			<param name="testNgXslt.testDetailsFilter" expression="FAIL,SKIP,PASS,BY_CLASS" />
+			<param name="testNgXslt.showRuntimeTotals" expression="true" />
+			<classpath refid="OnGuard_Connext_3.14.classpath" />
+		</xslt>
+	</target>
+
+	<target name="RunAndViewReport">
+		<exec executable="${browser}" spawn="yes">
+			<arg line="'${basedir}/testng-xslt/index.html'" />
+		</exec>
+		<exec executable="${browser}" spawn="yes">
+					<arg line="'${basedir}/LoadTestReport/JMeterResults.html'" />
+				</exec>
+	</target>
+
+	<target name="sendMail">
+		<!--<copydir src="${Screenshot.dir}" dest="${basedir}/testng-xslt"></copydir> -->
+		<zip destfile="${basedir}/testng-xslt/Report.zip" basedir="${basedir}/testng-xslt" />
+		<zip destfile="${basedir}/testng-xslt/LoadTestReport.zip" basedir="${basedir}/LoadTestReport" />
+		<!-- <exec executable="java">
+              			       <arg line="-classpath ${basedir}/jar/mail.jar:${basedir}/jar/activation.jar:${basedir}/jar/mailapi.jar"/>
+              			 </exec>  -->
+		<mail charset="ISO-8859-1" enablestarttls="true" ssl="false" mailhost="smtp.gmail.com" mailport="587" user="sumer.singh@sdnainfotech.com" password="${Password}" messagemimetype="text/html" subject="OnGuard: Application Manager TestSuite Report">
+			<from address="sumer.singh@sdnainfotech.com" />
+			<to address="saim.desire84@gmail.com" />
+			<to address="sushant.gupta@sdnainfotech.com" />
+		<!--<to address="sumeet.pal@sdnainfotech.com" />
+			<to address="atul@sdnainfotech.com" />
+			<to address="tania.sharma@sdnainfotech.com" />
+			<to address="divya.mahajan@sdnainfotech.com" />
+			<to address="kusha.bhaskar@sdnainfotech.com" />
+			<to address="vaneet.bhasin@sdnainfotech.com" /> -->
+			<message>
+              		            	Hi,
+              		            	The build has finished. A details report of this build is attached.
+              		                To open the report please follow the below steps:
+              		                  1. Extract the Report.zip file.
+              		                  2. Double Click on Index.html file              		            
+              		            Thanks and Regards
+              		            Sumer Singh
+              		            Sr.QA Automation Engineer
+              		            </message>
+			<attachments>
+				<fileset dir="testng-xslt">
+					<include name="/*.zip" />
+				</fileset>
+			</attachments>
+			<!--	<attachments>
+				<fileset dir="buildlogs">
+					<include name="/*.log" />
+				</fileset>
+			</attachments>-->
+		</mail>
+		<echo />
+	</target>
+</project>
